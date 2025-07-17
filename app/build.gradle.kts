@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0-rc03")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

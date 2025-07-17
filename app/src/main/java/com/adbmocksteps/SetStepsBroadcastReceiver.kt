@@ -34,6 +34,11 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
                     return@launch
                 }
 
+                if (HealthConnectClient.getSdkStatus(context) != HealthConnectClient.SDK_AVAILABLE) {
+                   Log.e("ADBMockSteps", "Health Connect is not available. Cannot write steps.")
+                   return@launch
+                }
+
                 val healthConnectClient = HealthConnectClient.getOrCreate(context)
                 val requiredPermissions = setOf(HealthPermission.getWritePermission(StepsRecord::class))
                 val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()

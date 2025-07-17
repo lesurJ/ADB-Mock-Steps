@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +18,10 @@ import androidx.compose.ui.unit.sp
 fun HealthScreen(
     status: String,
     isPermissionGranted: Boolean,
-    onGrantPermissions: () -> Unit
+    isHealthConnectAvailable: Boolean,
+    isHealthConnectInstallable: Boolean,
+    onGrantPermissions: () -> Unit,
+    onInstallUpdate: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -40,7 +42,7 @@ fun HealthScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            StatusCard(status, isPermissionGranted, onGrantPermissions)
+            StatusCard(status, isPermissionGranted, isHealthConnectAvailable, isHealthConnectInstallable, onGrantPermissions, onInstallUpdate)
 
             AdbCommandCard()
         }
@@ -51,7 +53,10 @@ fun HealthScreen(
 fun StatusCard(
     status: String,
     isPermissionGranted: Boolean,
-    onGrantPermissions: () -> Unit
+    isHealthConnectAvailable: Boolean,
+    isHealthConnectInstallable: Boolean,
+    onGrantPermissions: () -> Unit,
+    onInstallUpdate: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -82,17 +87,26 @@ fun StatusCard(
                 Text(
                     text = status,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (isPermissionGranted) Color.Green else Color.Red,
+                    color = Color.White,
                 )
             }
+            Spacer(Modifier.height(12.dp))
 
-            if (!isPermissionGranted) {
-                Spacer(Modifier.height(12.dp))
+            if (isHealthConnectAvailable and !isPermissionGranted) {
                 Button(
                     onClick = onGrantPermissions,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF))
                 ) {
                     Text("Grant Permissions")
+                }
+            }
+
+            if (!isHealthConnectAvailable and isHealthConnectInstallable) {
+                Button(
+                    onClick = onInstallUpdate,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF))
+                ) {
+                    Text("Install/Update Health Connect")
                 }
             }
         }
