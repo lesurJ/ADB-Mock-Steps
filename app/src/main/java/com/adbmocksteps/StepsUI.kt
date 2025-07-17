@@ -21,7 +21,8 @@ fun HealthScreen(
     isHealthConnectAvailable: Boolean,
     isHealthConnectInstallable: Boolean,
     onGrantPermissions: () -> Unit,
-    onInstallUpdate: () -> Unit
+    onInstallUpdate: () -> Unit,
+    lastBroadcastInfo: LastBroadcastInfo?
 ) {
     Box(
         modifier = Modifier
@@ -43,7 +44,7 @@ fun HealthScreen(
             )
 
             StatusCard(status, isPermissionGranted, isHealthConnectAvailable, isHealthConnectInstallable, onGrantPermissions, onInstallUpdate)
-
+            LastReceivedDataCard(lastBroadcastInfo)
             AdbCommandCard()
         }
     }
@@ -72,7 +73,7 @@ fun StatusCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "📊 HealthConnect status:",
+                    text = "🔐 HealthConnect status",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
@@ -107,6 +108,67 @@ fun StatusCard(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF))
                 ) {
                     Text("Install/Update Health Connect")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LastReceivedDataCard(lastBroadcastInfo: LastBroadcastInfo?) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "📊 Last received broadcast",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(12.dp))
+            if (lastBroadcastInfo == null) {
+                Text(
+                    text = "Waiting for first broadcast...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Steps:",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = lastBroadcastInfo.steps.toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Cyan,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Time:",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = lastBroadcastInfo.timestamp,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Cyan,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

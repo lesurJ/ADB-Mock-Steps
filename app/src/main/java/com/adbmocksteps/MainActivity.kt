@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,19 +43,11 @@ class MainActivity : ComponentActivity() {
         val healthConnectPermissionsLauncher = registerForActivityResult(requestPermissionActivityContract) { granted ->
             Log.d("MainActivity", "Permission result received, re-checking status.")
             checkAvailabilityAndPermissions()
-//            if (granted.containsAll(permissions)) {
-//                isPermissionGranted = true
-//                statusText = "permissions granted ✅"
-//                Log.i("MainActivity", "All permissions granted.")
-//            } else {
-//                isPermissionGranted = false
-//                statusText = "permissions not granted ❌"
-//                Log.w("MainActivity", "Not all permissions were granted.")
-//            }
         }
 
         setContent {
             ADBMockStepsTheme {
+                val lastBroadcastInfo by BroadcastStateRepository.lastBroadcast.collectAsState()
                 val lifecycleOwner = LocalLifecycleOwner.current
                 val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
 
@@ -74,7 +67,8 @@ class MainActivity : ComponentActivity() {
                     },
                     onInstallUpdate = {
                         redirectToHealthConnectInstallation()
-                    }
+                    },
+                    lastBroadcastInfo = lastBroadcastInfo
                 )
             }
         }
@@ -89,7 +83,6 @@ class MainActivity : ComponentActivity() {
         when (HealthConnectClient.getSdkStatus(this)) {
             HealthConnectClient.SDK_AVAILABLE -> {
                 healthConnectClient = HealthConnectClient.getOrCreate(this)
-                // statusText = "Health Connect is available."
                 isHealthConnectAvailable = true
                 isHealthConnectInstallable = false
 

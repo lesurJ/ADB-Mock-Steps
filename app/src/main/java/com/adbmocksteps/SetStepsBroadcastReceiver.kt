@@ -33,6 +33,7 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
                     Log.e("ADBMockSteps", "Invalid or missing 'steps' extra in broadcast.")
                     return@launch
                 }
+                BroadcastStateRepository.updateLastBroadcast(steps)
 
                 if (HealthConnectClient.getSdkStatus(context) != HealthConnectClient.SDK_AVAILABLE) {
                    Log.e("ADBMockSteps", "Health Connect is not available. Cannot write steps.")
@@ -59,7 +60,6 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
 
     private suspend fun writeSteps(client: HealthConnectClient, steps: Long) {
         try {
-            // We'll record the steps as having occurred in the last 5 minutes.
             val endTime = Instant.now()
             val startTime = endTime.minus(5, ChronoUnit.MINUTES)
 
