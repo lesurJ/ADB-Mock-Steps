@@ -158,6 +158,23 @@ fun LastReceivedDataCard(lastBroadcastInfo: LastBroadcastInfo?) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
+                        "Duration (min):",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = lastBroadcastInfo.duration.toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Cyan,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
                         "Time:",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.Gray
@@ -191,11 +208,18 @@ fun AdbCommandCard() {
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "adb shell am broadcast -a com.adbmocksteps.SET_STEPS --es steps \"5000\" -f 0x01000000",
+                text = "Type the following command in a CLI to set steps over a given duration in minutes.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                fontFamily = FontFamily.Monospace
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "adb shell am broadcast -a com.adbmocksteps.SET_STEPS --es steps \"1234\" --es duration \"30\" -f 0x01000000",
                 style = MaterialTheme.typography.bodySmall.copy(
                     lineHeight = 20.sp
                 ),
-                color = Color(0xFFCCCCCC),
+                color = Color.Gray,
                 fontFamily = FontFamily.Monospace
             )
         }

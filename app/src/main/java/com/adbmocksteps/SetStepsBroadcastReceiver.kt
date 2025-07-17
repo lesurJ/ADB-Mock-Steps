@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class SetStepsBroadcastReceiver : BroadcastReceiver() {
@@ -29,11 +30,12 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
             try {
                 Log.i("ADBMockSteps", "=== BROADCAST RECEIVER TRIGGERED ===")
                 val steps = intent.getStringExtra("steps")?.toLongOrNull()
-                if (steps == null) {
-                    Log.e("ADBMockSteps", "Invalid or missing 'steps' extra in broadcast.")
+                val duration = intent.getStringExtra("duration")?.toLongOrNull()
+                if (steps == null || duration == null) {
+                    Log.e("ADBMockSteps", "Invalid extras: steps=$steps, duration=$duration in broadcast.")
                     return@launch
                 }
-                BroadcastStateRepository.updateLastBroadcast(steps)
+                BroadcastStateRepository.updateLastBroadcast(steps, duration)
 
                 if (HealthConnectClient.getSdkStatus(context) != HealthConnectClient.SDK_AVAILABLE) {
                    Log.e("ADBMockSteps", "Health Connect is not available. Cannot write steps.")
@@ -45,7 +47,7 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
                 val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
 
                 if (grantedPermissions.containsAll(requiredPermissions)) {
-                    writeSteps(healthConnectClient, steps)
+                    writeSteps(healthConnectClient, steps, duration)
                 } else {
                     Log.e("ADBMockSteps", "WRITE_STEPS permission not granted. Please open the app to grant permission.")
                 }
@@ -58,23 +60,23 @@ class SetStepsBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun writeSteps(client: HealthConnectClient, steps: Long) {
+    private suspend fun writeSteps(client: HealthConnectClient, steps: Long, duration: Long) {
         try {
             val endTime = Instant.now()
-            val startTime = endTime.minus(5, ChronoUnit.MINUTES)
-
+            val startTime = endTime.minus(duration, ChronoUnit.MINUTES)
+            val zoneOffset = ZoneOffset.systemDefault().rules.getOffset(startTime)
             val stepsRecord = StepsRecord(
                 count = steps,
                 startTime = startTime,
                 endTime = endTime,
-                startZoneOffset = null,
-                endZoneOffset = null,
-                metadata = Metadata.autoRecorded(device = Device(type = Device.TYPE_WATCH))
+                startZoneOffset = zoneOffset,
+                endZoneOffset = zoneOffset,
+                metadata = Metadata.autoRecorded(device = Device(type = Device.TYPE_PHONE))
             )
 
             val records = listOf(stepsRecord)
             client.insertRecords(records)
-            Log.i("ADBMockSteps", "Successfully inserted $steps steps into Health Connect.")
+            Log.i("ADBMockSteps", "Successfully inserted $steps steps with duration $duration minute(s) into Health Connect.")
 
         } catch (e: Exception) {
             Log.e("ADBMockSteps", "Failed to write steps to Health Connect", e)

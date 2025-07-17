@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
  */
 data class LastBroadcastInfo(
     val steps: Long,
+    val duration: Long,
     val timestamp: String
 )
 
@@ -21,12 +22,13 @@ object BroadcastStateRepository {
     private val _lastBroadcast = MutableStateFlow<LastBroadcastInfo?>(null)
     val lastBroadcast = _lastBroadcast.asStateFlow()
 
-    fun updateLastBroadcast(steps: Long) {
+    fun updateLastBroadcast(steps: Long, duration: Long) {
         val currentTime = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
         _lastBroadcast.value = LastBroadcastInfo(
             steps = steps,
+            duration = duration,
             timestamp = currentTime.format(formatter)
         )
     }
